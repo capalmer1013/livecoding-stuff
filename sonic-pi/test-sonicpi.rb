@@ -69,12 +69,24 @@ end
 
 # live_loops
 # ================================================================================================
+live_loop :binaural_beats do
+  with_synth :sine do
+    play 60, release: 8, decay: 0, sustain: 8, pan: -1, amp: 0.2, attack: 1.0
+    play 60.5, release: 8, decay: 0, sustain: 8, pan: 1, amp: 0.2, attack: 1.0
+  end
+  with_synth :pnoise do
+    play 60.5, release: 8, decay: 0, sustain: 8, amp: 0.2, attack: 1.0
+  end
+  sleep 8
+end
+
 live_loop :a do
   # sample moto, amp: rand(0.1), attack: rand(1.0), rate: rrand(0.1, 0.5), pan: rrand(-1.0, 1.0)
   sleep rand(2.0)
 end
 
 live_loop :bc do
+  stop
   melody = create_melody(3)
   fx_list = [:bitcrusher, :reverb]
   play_fn = lambda { play_melody(melody, 3.0) }

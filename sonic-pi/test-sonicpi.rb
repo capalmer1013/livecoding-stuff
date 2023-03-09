@@ -8,7 +8,6 @@ wave_freq = 15
 
 use_tuning :just, hz_to_midi(root)
 
-
 # functions
 # ================================================================================================
 define :create_melody do |len, max_depth=2|
@@ -100,6 +99,8 @@ live_loop :bc do
   4.times do
     play_melody(melody, 12.0)
   end
-  
 end
-puts chord(:c, '11+')
+puts chord_names
+chord(:c, 'maj11').each do |i|
+  puts note_info(i)
+end

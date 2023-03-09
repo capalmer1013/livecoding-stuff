@@ -46,16 +46,25 @@ define :play_melody do |melody, t|
   end
 end
 
-
-define :create_note do |pitch=60, amp=0.5, pan=0.0, attack=0.0, decay=0.0, sustain=0.0, release=1.0|
+define :create_note do |pitch=60, amp=0.5, pan=0.0, attack=0.0, decay=0.0, sustain=0.0|
   note = {
     :pitch => pitch,
     :amp => amp,
     :pan => pan,
     :synth => current_synth,
   }
-  # play note[:pitch], sustain: note[:duration], amp: note[:amp]
   return note
+end
+
+def signal_chain(fx_list, &play_fn)
+  if fx_list.empty?
+    play_fn.call()
+  else
+    this_fx = fx_list.pop
+    with_fx this_fx do
+      signal_chain(fx_list, play_fn)
+    end
+  end
 end
 
 # live_loops
@@ -67,6 +76,8 @@ end
 
 live_loop :bc do
   melody = create_melody(3)
+  fx_list = [:bitcrusher, :reverb]
+  play_fn = lambda { play_melody(melody, 3.0) }
   4.times do
     play_melody(melody, 3.0)
   end

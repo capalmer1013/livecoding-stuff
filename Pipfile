@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 moviepy = "*"
 pygame = "*"
+tidalvortex = "*"
 
 [dev-packages]
 

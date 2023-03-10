@@ -1,0 +1,52 @@
+d1 $ sound "bd sn"
+d1 $ every 2 (0.25 <~) $ sound "bd*2 [[~ lt] sn:3] lt:1 [ht mt*2]"
+d1 $ every 2 (0.5 <~) $ sound "bd*4 [[~ lt] sn:4] lt:1 [ht mt*1]"
+
+d1 $ every 2 ("<0.25 0.125 0.5>" <~) $ sound "bd*2 [[~ lt] sn:3] lt:1 [ht mt*2]"
+  # squiz "<1 2.5 2>"
+  # room (fast 4 $ range 0 0.2 saw)
+  # sz 0.5
+  # orbit 1
+
+
+d1 
+  $ superimpose ((# speed "2*12") . (# squiz (slow 2 $ range 1 16 $ sine)) . (striate
+  "[4|2|3]") . (ply "[[1 1 2 4]|[1 1 2 2]]") . (# room "0 0.5") . (# sz "0.2 0.4"))
+  $ fast 2
+  $ s "bd hh bd hh" # amp 0.4
+
+
+d1 $ every 2 (0.25 <~) $ sound "bd*2 [[~ lt] sn:3] lt:1 [ht mt*2]"
+    # squiz "<1 2.5 2>"
+    # room (slow 4 $ range 0 0.2 saw)
+    # sz 0.5
+    # orbit 1
+
+d1 ((# speed "2*12") . (# squiz (slow 2 $ range 1 16 $ sine)) . (striate
+  "[4|2|3]") . (ply "[[1 1 2 4]|[1 1 2 2]]") . (# room "0 0.5") . (# sz "0.2 0.4"))
+
+
+
+
+d2 $ s "hh:2 ~ hh:3 cp" 
+
+d1 $ fast 2 $ s "bd sd bd hh bd cp"
+
+d1 $ fast 1.5 $ s "[sax:4(11,24,14), space(3,8,12), sd(5,12,16)]"
+
+d1 $ n ""
+   # s "sax"
+   # end 0.05
+
+
+d1 $ sound "bd*32" 
+  # speed (perlin + 0.5)
+
+d1 $ sound "drum" |+| n "6 [7 8] 9"
+
+
+d1 $ sound "bd*32" # speed (fast 4 $ perlin + 0.5)
+d1 $ sound "bd*32" # speed (slow 4 $ perlin + 0.5)
+
+
+d1 $ sometimes (# crush 2) $ n "0 1 [~ 2] 3" # sound "arpy"

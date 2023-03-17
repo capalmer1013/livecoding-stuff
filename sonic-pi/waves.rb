@@ -4,7 +4,8 @@ use_synth :sine
 moto = "/home/cpalmer/Music/samples/motorcycle.wav"
 
 root = 108
-wave_freq = 40
+# wave_freq = 40
+wave_freq = 18
 chord_type = :major
 
 use_tuning :just, hz_to_midi(root)
@@ -77,17 +78,19 @@ end
 # live_loops
 # ================================================================================================
 live_loop :binaural_beats do
-  amp = 0.1
-  time_before_change = 1
+  amp = 0.5
+  time_before_change = 60
   if wave_freq > 8
     wave_freq -= 1
   end
+  puts wave_freq
   
   l = play hz_to_midi(root),           pan: -1, amp: amp, sustain: time_before_change, release: 0
-  #r = play hz_to_midi(root+wave_freq), pan: 1,  amp: amp, sustain: time_before_change, release: 0, attack: 0.2, decay: 0.1
+  r = play hz_to_midi(root+wave_freq), pan: 1,  amp: amp, sustain: time_before_change, release: 0, attack: 0.2, decay: 0.1
   
   with_synth :pnoise do
-    play root, release: 0, sustain: time_before_change, amp: amp*0.1
+    play root, release: 0, sustain: time_before_change, amp: amp*0.2, pan: -1
+    play root, release: 0, sustain: time_before_change, amp: amp*0.2, pan: 1
   end
   sleep time_before_change
 end

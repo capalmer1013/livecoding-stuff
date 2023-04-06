@@ -2,3 +2,4 @@ sonic-pi/*.wav
 *.png
 *.mp4
 *.wav
+!samples/**

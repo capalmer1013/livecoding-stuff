@@ -1,25 +1,9 @@
 use_random_seed Time.now.to_i
 use_bpm 120
 
-##| event = {
-##|   :note   => note(:c4),
-##|   :sample => :bd_fat,
-##|   :chord  => chord(:c4, :M7),
-##|   :l      => []
-##| }
-
-
 
 # =====================================================================================
 # choice utils
-
-##| def create_smooth_chord_cycle(key, num_chords)
-##|   n_iterations = 2
-##|   result = []
-##|   num_chords.times do
-
-##|   end
-##| end
 
 
 def next_chord(prev_chord_deg)
@@ -36,8 +20,39 @@ def next_chord(prev_chord_deg)
 end
 
 def get_next_note(prev_notes, avail_notes)
+  # sort notes by how close they are to the previous note
+  # random choose with 1.0/i chance of each index
+  prev_note = prev_notes.last
+  while !prev_note && prev_notes.length > 0
+    prev_note = prev_notes.pop
+  end
   
+  if !prev_note
+    return avail_notes.choose
+  end
+  
+  sorted = avail_notes.sort
+  i = sorted.index(prev_note)
+  return sorted[min(0, max(sorted.length-1, i+rrand_i(-2, 2)))]
 end
+
+
+def create_n_chords(n, key, tonality)
+  chords = []
+  prev_chord = 1
+  n.times do
+    chords.push(
+      chord_degree(
+        prev_chord,
+        key,
+        tonality
+      )
+    )
+    prev_chord = next_chord(prev_chord)
+  end
+  return chords
+end
+
 
 
 # =====================================================================================
@@ -89,6 +104,8 @@ def recursive_play(l, n_beats)
 end
 
 
+
+
 def generate_events(num_events, notes=nil, samples=nil, chords=nil, subdivisions=nil)
   if num_events == 0
     return []
@@ -97,29 +114,16 @@ def generate_events(num_events, notes=nil, samples=nil, chords=nil, subdivisions
   if !notes && !samples && !chords
     key = :c
     tonality = :aeolian
-    chords = []
-    prev_chord = 1
-    num_events.times do
-      chords.push(
-        chord_degree(
-          prev_chord,
-          key,
-          tonality
-        )
-      )
-      prev_chord = next_chord(prev_chord)
-    end
-    
+    chords = create_n_chords(num_events, key, tonality)
     notes = scale(key, tonality, num_octaves: 3)
     samples = [:bd_fat, :drum_cymbal_closed, :elec_snare]
-    puts chords
-    puts chords.length
     subdivisions = [2, 3]
   end
   events = []
   
   ##| new_n_events = subdivisions ? subdivisions.pop : (num_events*0.7).to_i
-  new_n_events = (num_events*0.7).to_i
+  ##| new_n_events = (num_events*0.7).to_i
+  new_n_events = subdivisions.last ? subdivisions.pop : 0
   
   prev_notes = []
   next_note = choose([nil]*4+[notes.choose])

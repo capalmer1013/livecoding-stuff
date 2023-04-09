@@ -1,7 +1,6 @@
 use_random_seed Time.now.to_i
 use_bpm 120
 
-
 # =====================================================================================
 # choice utils
 
@@ -26,14 +25,21 @@ def get_next_note(prev_notes, avail_notes)
   while !prev_note && prev_notes.length > 0
     prev_note = prev_notes.pop
   end
+  puts "out of the while"
   
   if !prev_note
     return avail_notes.choose
   end
-  
-  sorted = avail_notes.sort
+  puts avail_notes
+  sorted = avail_notes.flatten.sort
   i = sorted.index(prev_note)
-  return sorted[min(0, max(sorted.length-1, i+rrand_i(-2, 2)))]
+  if !i
+    return avail_notes.choose
+  end
+  
+  i += rrand_i(-2, 2)
+  i = [sorted.length-1, [0, i].max].min
+  return sorted[ i ]
 end
 
 
@@ -60,7 +66,7 @@ end
 
 def w_play(n_ote, r_elease) # n as in note
   with_synth :bass_foundation do
-    play n_ote, release: r_elease, amp: [1.0, 1.0/r_elease].min, pan: rrand(-1.0, 1.0)
+    play n_ote-24, release: r_elease, amp: [1.0, 1.0/r_elease].min, pan: rrand(-1.0, 1.0)
   end
 end
 
@@ -78,6 +84,11 @@ def w_play_chord(c_hord, r_elease)
   ##| end
 end
 
+def w_chop_amen(slice)
+  sample :loop_amen, num_slices: 8, slice: slice, amp: 0.5
+end
+
+
 # =====================================================================================
 # recursive play and generate
 
@@ -89,7 +100,8 @@ def recursive_play(l, n_beats)
       w_play(e[:note], n_beats/l.length.to_f)
     end
     if e[:sample]
-      w_sample(e[:sample], n_beats/l.length.to_f)
+      ##| w_sample(e[:sample], n_beats/l.length.to_f)
+      w_chop_amen(e[:sample])
     end
     if e[:chord]
       w_play_chord(e[:chord], n_beats/l.length.to_f)
@@ -106,39 +118,44 @@ end
 
 
 
-def generate_events(num_events, notes=nil, samples=nil, chords=nil, subdivisions=nil)
+def generate_events(num_events, subdivisions, notes=nil, chords=nil)
   if num_events == 0
     return []
   end
+  n_slices = 8
+  ##| samples = [:bd_fat, :drum_cymbal_closed, :elec_snare]
+  samples = (0..n_slices).to_a
   
-  if !notes && !samples && !chords
+  if !notes && !chords
     key = :c
     tonality = :aeolian
     chords = create_n_chords(num_events, key, tonality)
     notes = scale(key, tonality, num_octaves: 3)
-    samples = [:bd_fat, :drum_cymbal_closed, :elec_snare]
-    subdivisions = [2, 3]
+    subdivisions = [6, 2]
   end
   events = []
   
-  ##| new_n_events = subdivisions ? subdivisions.pop : (num_events*0.7).to_i
-  ##| new_n_events = (num_events*0.7).to_i
-  new_n_events = subdivisions.last ? subdivisions.pop : 0
+  if subdivisions && subdivisions.length > 0
+    new_n_events = subdivisions[0]
+    subdivisions = subdivisions.slice(1, subdivisions.length-1)
+  else
+    new_n_events = 0
+  end
   
+  puts "notes boi", notes
   prev_notes = []
-  next_note = choose([nil]*4+[notes.choose])
+  next_note = notes.choose
   
   num_events.times do |i|
     event = {
       :note   => next_note,
-      :sample => choose([nil]*4+[samples.choose]),
+      :sample => samples.choose,
       :chord  => chords ? chords[i]: nil,
       :l      => new_n_events > 0 ? generate_events(
         new_n_events,
-        notes + (chords ? chords: []),
-        samples,
+        subdivisions=subdivisions,
+        notes + (chords ? chords : []).flatten,
         chords=nil,
-        subdivisions=subdivisions
       ): nil
     }
     
@@ -157,10 +174,12 @@ end
 # live loops
 
 live_loop :a do
-  n_beats = 7
-  test = generate_events(n_beats)
+  n_beats = 5
+  test = generate_events(n_beats, [6, 4])
+  puts test
+  ##| stop
   4.times do
-    recursive_play(test, n_beats*2)
+    recursive_play(test, n_beats*4)
     
   end
 end

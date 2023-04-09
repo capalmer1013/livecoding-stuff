@@ -75,7 +75,7 @@ def w_play(n_ote, r_elease) # n as in note
     play n_ote, sustain: r_elease*2, amp: amp*0.5
   end
   with_synth :dsaw do
-    play n_ote-24, release: r_elease, amp: amp*0.1
+    play n_ote-24, release: r_elease, amp: amp*0.1, attack: 0.5
   end
   
 end
@@ -113,6 +113,7 @@ def recursive_edit(l)
   if !l
     return nil
   end
+  return l
   l.each do |e|
     choice = choose([1, 2, 3])
     if choice == 1
@@ -209,24 +210,24 @@ end
 # live loops
 max_beats = 8
 live_loop :a do
-  n_beats = rrand_i(2, max_beats)  # was 8
-  a = generate_events(n_beats, [rrand_i(2, max_beats), rrand_i(2, max_beats)])
-  b = generate_events(n_beats, [rrand_i(2, max_beats), rrand_i(2, max_beats)])
+  n_beats = rrand_i(max_beats-4, max_beats)  # was 8
+  a = generate_events(n_beats, [rrand_i(2, max_beats), rrand_i(3, max_beats)])
+  b = generate_events(n_beats, [rrand_i(2, max_beats), rrand_i(3, max_beats)])
   ##| stop
   with_fx :reverb do
     2.times do
       4.times do
-        recursive_play(a, n_beats*4)
+        recursive_play(a, 16)
       end
       2.times do
-        recursive_play(b, n_beats*4)
+        recursive_play(b, 16)
       end
       a = recursive_edit(a)
       b = recursive_edit(b)
     end
   end
-  max_beats += 1
-  ##| stop
+  max_beats += 2
+  stop
 end
 
 ##| live_loop :b do

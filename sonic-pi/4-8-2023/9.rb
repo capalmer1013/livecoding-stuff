@@ -207,27 +207,25 @@ end
 
 # =====================================================================================
 # live loops
-
+max_beats = 8
 live_loop :a do
-  n_beats = rrand_i(2, 8)  # was 8
-  a = generate_events(n_beats, [rrand_i(2, 6), rrand_i(2, 6)])
-  b = generate_events(n_beats, [rrand_i(2, 6), rrand_i(2, 6)])
+  n_beats = rrand_i(2, max_beats)  # was 8
+  a = generate_events(n_beats, [rrand_i(2, max_beats), rrand_i(2, max_beats)])
+  b = generate_events(n_beats, [rrand_i(2, max_beats), rrand_i(2, max_beats)])
   ##| stop
   with_fx :reverb do
     2.times do
-      2.times do
+      4.times do
         recursive_play(a, n_beats*4)
       end
       2.times do
         recursive_play(b, n_beats*4)
       end
-      2.times do
-        recursive_play(a, n_beats*4)
-      end
       a = recursive_edit(a)
       b = recursive_edit(b)
     end
   end
+  max_beats += 1
   ##| stop
 end
 
